@@ -3,10 +3,10 @@ import React from 'react';
 import { DigitStatus, getDigitStatus } from '../utils/gameUtils';
 
 interface NumberTileProps {
-  digit: string | null; // Updated to allow null for the empty space
+  digit: string | null; // Allows null for the empty space
   index: number;
   isSelected: boolean;
-  isMovable: boolean; // Changed from isLocked to isMovable
+  isMovable: boolean; 
   isTarget: boolean;
   targetArray: string[];
   showStatus: boolean;
@@ -34,11 +34,11 @@ const NumberTile: React.FC<NumberTileProps> = ({
       className={`
         number-tile glass-panel
         ${isSelected ? 'ring-4 ring-blue-500 transform scale-110 z-10' : ''}
-        ${digit === null ? 'empty-tile' : 'cursor-pointer'}
+        ${digit === null ? 'empty-tile' : ''}
         ${status === 'correct' ? 'correct' : ''}
         ${status === 'incorrect' ? 'incorrect' : ''}
         ${isTarget ? 'target' : ''}
-        ${!isMovable ? 'cursor-not-allowed opacity-75' : ''}
+        ${isMovable ? 'cursor-pointer hover:bg-blue-50 hover:scale-105' : 'cursor-not-allowed opacity-75'}
       `}
       onClick={isMovable ? onClick : undefined}
       style={style}

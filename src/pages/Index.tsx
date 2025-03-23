@@ -21,6 +21,9 @@ const Index = () => {
     }
   }, [gameState.status, gameState.moves]);
   
+  // Find the empty space index in the current sequence
+  const emptySpaceIndex = gameState.currentSequence.findIndex(item => item === null);
+  
   // Tutorial content
   const renderTutorial = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -114,7 +117,7 @@ const Index = () => {
                   currentSequence={gameState.currentSequence}
                   targetSequence={gameState.targetSequence}
                   onMove={gameState.moveTile}
-                  lockedPositions={gameState.lockedPositions}
+                  emptySpaceIndex={emptySpaceIndex}
                   activePowerUp={gameState.activePowerUp}
                   activeObstacle={gameState.activeObstacle}
                 />

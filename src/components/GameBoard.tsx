@@ -100,7 +100,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       
       <div className="glass-panel rounded-xl p-4">
         <div 
-          className="grid grid-cols-3 gap-2 justify-center" // Fixed 3x3 grid
+          className="grid grid-cols-3 gap-1 justify-center" // Reduced gap for more compact grid
         >
           {currentSequence.map((digit, index) => (
             <NumberTile
@@ -115,8 +115,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
               onClick={() => handleTileClick(index)}
               style={{ 
                 opacity: showNumbers ? 1 : 0.7,
-                width: '4rem',
-                height: '4rem'
+                width: '3.5rem', // Smaller width for more compact appearance
+                height: '3.5rem', // Smaller height for more compact appearance
+                margin: '0.125rem' // Tiny margin for separation
               }}
             />
           ))}

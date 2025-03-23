@@ -114,7 +114,7 @@
   }
   
   .number-tile.empty-tile {
-    @apply bg-opacity-20 border-opacity-10;
+    @apply bg-opacity-10 border-opacity-5 shadow-none;
   }
   
   .number-tile.correct {

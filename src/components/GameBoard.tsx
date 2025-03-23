@@ -54,7 +54,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const emptyCol = emptySpaceIndex % gridSize;
     
     // A tile is movable if it's in the same row or column as the empty space
-    // and adjacent to it
+    // and adjacent to it (no diagonal moves)
     const sameRow = row === emptyRow;
     const sameCol = col === emptyCol;
     
@@ -100,7 +100,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       
       <div className="glass-panel rounded-xl p-4">
         <div 
-          className="grid grid-cols-3 gap-1 justify-center" // Reduced gap for more compact grid
+          className="grid grid-cols-3 gap-0 justify-center" // No gap for a true sliding puzzle look
         >
           {currentSequence.map((digit, index) => (
             <NumberTile
@@ -115,8 +115,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
               onClick={() => handleTileClick(index)}
               style={{ 
                 opacity: showNumbers ? 1 : 0.7,
-                width: '3.5rem', // Smaller width for more compact appearance
-                height: '3.5rem', // Smaller height for more compact appearance
+                width: '3.5rem', // Compact size
+                height: '3.5rem', // Compact size
                 margin: '0.125rem' // Tiny margin for separation
               }}
             />

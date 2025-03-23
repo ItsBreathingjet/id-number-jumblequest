@@ -5,10 +5,10 @@ import { PowerUp, Obstacle } from '../utils/gameUtils';
 import { toast } from 'sonner';
 
 interface GameBoardProps {
-  currentSequence: (string | null)[]; // Updated to allow null for empty space
+  currentSequence: string[];
   targetSequence: string[];
   onMove: (fromIndex: number, toIndex: number) => void;
-  emptySpaceIndex: number; // Added to track the empty space
+  lockedPositions: number[];
   activePowerUp: PowerUp | null;
   activeObstacle: Obstacle | null;
 }
@@ -17,10 +17,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
   currentSequence,
   targetSequence,
   onMove,
-  emptySpaceIndex,
+  lockedPositions,
   activePowerUp,
   activeObstacle
 }) => {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [showNumbers, setShowNumbers] = useState(true);
   
   // Handle the blind obstacle
@@ -43,37 +44,41 @@ const GameBoard: React.FC<GameBoardProps> = ({
     ? [...targetSequence].reverse() 
     : targetSequence;
   
-  // Function to check if a tile is movable (adjacent to empty space)
-  const isMovable = (index: number): boolean => {
-    if (index === emptySpaceIndex) return false;
-    
-    const gridSize = 3; // 3x3 grid
-    const row = Math.floor(index / gridSize);
-    const col = index % gridSize;
-    const emptyRow = Math.floor(emptySpaceIndex / gridSize);
-    const emptyCol = emptySpaceIndex % gridSize;
-    
-    // A tile is movable if it's in the same row or column as the empty space
-    // and adjacent to it (no diagonal moves)
-    const sameRow = row === emptyRow;
-    const sameCol = col === emptyCol;
-    
-    if (sameRow) {
-      return Math.abs(col - emptyCol) === 1;
-    }
-    
-    if (sameCol) {
-      return Math.abs(row - emptyRow) === 1;
-    }
-    
-    return false;
-  };
-  
   const handleTileClick = (index: number) => {
-    if (isMovable(index)) {
-      onMove(index, emptySpaceIndex);
-    } else if (index !== emptySpaceIndex) {
-      toast.error("You can only move tiles adjacent to the empty space");
+    // If position is locked, don't allow interaction
+    if (lockedPositions.includes(index) && activePowerUp !== 'swap') {
+      toast.error('This position is locked!');
+      return;
+    }
+    
+    // If no tile is selected, select this one
+    if (selectedIndex === null) {
+      setSelectedIndex(index);
+      return;
+    }
+    
+    // If same tile is clicked again, deselect it
+    if (selectedIndex === index) {
+      setSelectedIndex(null);
+      return;
+    }
+    
+    // If we're using the 'swap' power-up, allow swapping any two tiles
+    if (activePowerUp === 'swap') {
+      onMove(selectedIndex, index);
+      setSelectedIndex(null);
+      toast.success('Tiles swapped successfully!');
+      return;
+    }
+    
+    // Only allow swapping adjacent tiles
+    const isAdjacent = Math.abs(selectedIndex - index) === 1;
+    if (isAdjacent) {
+      onMove(selectedIndex, index);
+      setSelectedIndex(null);
+    } else {
+      toast.error('You can only swap adjacent tiles (unless using a swap power-up)');
+      setSelectedIndex(index);
     }
   };
   
@@ -99,25 +104,21 @@ const GameBoard: React.FC<GameBoardProps> = ({
       </div>
       
       <div className="glass-panel rounded-xl p-4">
-        <div 
-          className="grid grid-cols-3 gap-0 justify-center" // No gap for a true sliding puzzle look
-        >
+        <div className="flex flex-wrap justify-center">
           {currentSequence.map((digit, index) => (
             <NumberTile
               key={`tile-${index}`}
-              digit={showNumbers ? digit : digit === null ? null : '?'}
+              digit={showNumbers ? digit : '?'}
               index={index}
-              isSelected={false}
-              isMovable={isMovable(index)}
+              isSelected={selectedIndex === index}
+              isLocked={lockedPositions.includes(index)}
               isTarget={false}
               targetArray={targetSequence}
               showStatus={true}
               onClick={() => handleTileClick(index)}
               style={{ 
                 opacity: showNumbers ? 1 : 0.7,
-                width: '3.5rem', // Compact size
-                height: '3.5rem', // Compact size
-                margin: '0.125rem' // Tiny margin for separation
+                animationDelay: `${index * 0.05}s`
               }}
             />
           ))}
@@ -125,7 +126,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         
         {activePowerUp === 'swap' && (
           <div className="mt-3 text-sm text-blue-600 font-medium text-center rounded-lg bg-blue-50 py-1">
-            Swap Power-Up Active: Click any tile to swap with another
+            Swap Power-Up Active: Select any two tiles to swap
           </div>
         )}
         

@@ -11,6 +11,11 @@ interface NumberTileProps {
   targetArray: string[];
   showStatus: boolean;
   onClick: () => void;
+  onDragStart: () => void;
+  onDragEnter: () => void;
+  onDragEnd: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
   style?: React.CSSProperties;
 }
 
@@ -23,6 +28,11 @@ const NumberTile: React.FC<NumberTileProps> = ({
   targetArray,
   showStatus,
   onClick,
+  onDragStart,
+  onDragEnter,
+  onDragEnd,
+  onDragOver,
+  onDrop,
   style
 }) => {
   const status: DigitStatus = showStatus 
@@ -32,7 +42,7 @@ const NumberTile: React.FC<NumberTileProps> = ({
   return (
     <div
       className={`
-        number-tile glass-panel w-16 h-16 rounded-xl cursor-pointer m-1
+        number-tile glass-panel cursor-pointer
         ${isSelected ? 'ring-4 ring-blue-500 transform scale-110 z-10' : ''}
         ${isLocked ? 'ring-2 ring-yellow-500' : ''}
         ${status === 'correct' ? 'correct' : ''}
@@ -41,6 +51,12 @@ const NumberTile: React.FC<NumberTileProps> = ({
         ${isLocked ? 'cursor-not-allowed' : ''}
       `}
       onClick={onClick}
+      draggable={!isLocked}
+      onDragStart={onDragStart}
+      onDragEnter={onDragEnter}
+      onDragEnd={onDragEnd}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
       style={style}
     >
       {digit}

@@ -21,7 +21,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   activePowerUp,
   activeObstacle
 }) => {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [showNumbers, setShowNumbers] = useState(true);
   
   // Handle the blind obstacle
@@ -44,43 +44,54 @@ const GameBoard: React.FC<GameBoardProps> = ({
     ? [...targetSequence].reverse() 
     : targetSequence;
   
-  const handleTileClick = (index: number) => {
-    // If position is locked, don't allow interaction
+  const handleDragStart = (index: number) => {
+    // If position is locked, don't allow dragging
     if (lockedPositions.includes(index) && activePowerUp !== 'swap') {
-      toast.error('This position is locked!');
       return;
     }
     
-    // If no tile is selected, select this one
-    if (selectedIndex === null) {
-      setSelectedIndex(index);
-      return;
-    }
-    
-    // If same tile is clicked again, deselect it
-    if (selectedIndex === index) {
-      setSelectedIndex(null);
-      return;
-    }
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Allow drop
+  };
+  
+  const handleDragEnter = (index: number) => {
+    // Visual feedback could be added here
+  };
+  
+  const handleDrop = (index: number) => {
+    if (draggedIndex === null) return;
+    if (draggedIndex === index) return;
     
     // If we're using the 'swap' power-up, allow swapping any two tiles
     if (activePowerUp === 'swap') {
-      onMove(selectedIndex, index);
-      setSelectedIndex(null);
+      onMove(draggedIndex, index);
+      setDraggedIndex(null);
       toast.success('Tiles swapped successfully!');
       return;
     }
     
     // Only allow swapping adjacent tiles
-    const isAdjacent = Math.abs(selectedIndex - index) === 1;
+    const isAdjacent = Math.abs(draggedIndex - index) === 1 || 
+                       Math.abs(draggedIndex - index) === Math.floor(Math.sqrt(currentSequence.length));
+    
     if (isAdjacent) {
-      onMove(selectedIndex, index);
-      setSelectedIndex(null);
+      onMove(draggedIndex, index);
     } else {
       toast.error('You can only swap adjacent tiles (unless using a swap power-up)');
-      setSelectedIndex(index);
     }
+    
+    setDraggedIndex(null);
   };
+  
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+  
+  // Calculate grid dimensions
+  const gridCols = Math.ceil(Math.sqrt(currentSequence.length));
   
   return (
     <div className="w-full max-w-md mx-auto">
@@ -104,21 +115,33 @@ const GameBoard: React.FC<GameBoardProps> = ({
       </div>
       
       <div className="glass-panel rounded-xl p-4">
-        <div className="flex flex-wrap justify-center">
+        <div 
+          className="grid gap-2 justify-center"
+          style={{ 
+            gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))`,
+          }}
+        >
           {currentSequence.map((digit, index) => (
             <NumberTile
               key={`tile-${index}`}
               digit={showNumbers ? digit : '?'}
               index={index}
-              isSelected={selectedIndex === index}
+              isSelected={draggedIndex === index}
               isLocked={lockedPositions.includes(index)}
               isTarget={false}
               targetArray={targetSequence}
               showStatus={true}
-              onClick={() => handleTileClick(index)}
+              onClick={() => {}} // We're using drag now, so empty function
+              onDragStart={() => handleDragStart(index)}
+              onDragEnter={() => handleDragEnter(index)}
+              onDragEnd={handleDragEnd}
+              onDragOver={handleDragOver}
+              onDrop={() => handleDrop(index)}
               style={{ 
                 opacity: showNumbers ? 1 : 0.7,
-                animationDelay: `${index * 0.05}s`
+                animationDelay: `${index * 0.05}s`,
+                width: '3.5rem',
+                height: '3.5rem'
               }}
             />
           ))}
@@ -126,7 +149,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         
         {activePowerUp === 'swap' && (
           <div className="mt-3 text-sm text-blue-600 font-medium text-center rounded-lg bg-blue-50 py-1">
-            Swap Power-Up Active: Select any two tiles to swap
+            Swap Power-Up Active: Drag any tile to swap with another
           </div>
         )}
         

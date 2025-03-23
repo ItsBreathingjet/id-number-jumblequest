@@ -38,7 +38,8 @@ const Index = () => {
               <li>Enter your Student ID to start the game.</li>
               <li>The game takes the first 8 digits of your ID.</li>
               <li>The numbers will be randomly shuffled.</li>
-              <li>Swap adjacent tiles to arrange them in the correct order.</li>
+              <li>Drag and drop tiles to arrange them in the correct order.</li>
+              <li>You can only swap adjacent tiles (up, down, left, right).</li>
               <li>The target sequence is displayed at the top.</li>
               <li>Correctly positioned numbers will turn blue.</li>
             </ul>
@@ -90,10 +91,10 @@ const Index = () => {
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <header className="text-center mb-6">
-          <h1 className="text-4xl font-bold mb-2">Student ID Jumble Quest</h1>
+          <h1 className="text-4xl font-bold mb-2">Digit Dash Dungeon</h1>
           <p className="text-gray-600">
             {gameState.status === 'idle' 
-              ? 'A roguelike number puzzle challenge' 
+              ? 'A roguelike puzzle adventure with your Student ID' 
               : `Arrange the digits to match your Student ID: ${gameState.studentId}`}
           </p>
         </header>
